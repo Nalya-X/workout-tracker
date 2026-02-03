@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Workout Tracker - William</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .session-nav {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .session-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .session-btn {
+            flex: 1;
+            min-width: 70px;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .session-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .session-1 { background: #C7D2FE; color: #4338CA; }
+        .session-1.active { background: #A5B4FC; }
+        
+        .session-2 { background: #FBCFE8; color: #BE185D; }
+        .session-2.active { background: #F9A8D4; }
+        
+        .session-3 { background: #BBF7D0; color: #15803D; }
+        .session-3.active { background: #86EFAC; }
+        
+        .session-4 { background: #FED7AA; color: #C2410C; }
+        .session-4.active { background: #FDBA74; }
+
+        .workout-content {
+            display: none;
+        }
+
+        .workout-content.active {
+            display: block;
+        }
+
+        .muscle-group {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .muscle-group-header {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .exercise {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #F9FAFB;
+        }
+
+        .exercise.completed {
+            opacity: 0.6;
+            background: #E5E7EB;
+        }
+
+        .exercise-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .exercise-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #1F2937;
+            flex: 1;
+        }
+
+        .exercise-info {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 3px;
+        }
+
+        .complete-btn {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            min-width: 60px;
+        }
+
+        .complete-btn.completed {
+            background: #6B7280;
+        }
+
+        .sets-container {
+            margin-top: 10px;
+        }
+
+        .set-row {
+            display: grid;
+            grid-template-columns: 40px 1fr 1fr 40px;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .set-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6B7280;
+        }
+
+        .set-input {
+            padding: 8px;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            -webkit-appearance: none;
+        }
+
+        .set-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .set-check {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .biset-indicator {
+            background: linear-gradient(90deg, #FEF3C7 0%, #FCD34D 100%);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: #92400E;
+            text-align: center;
+        }
+
+        .biset-type {
+            font-size: 11px;
+            margin-top: 3px;
+            opacity: 0.8;
+        }
+
+        .rest-time {
+            background: #DBEAFE;
+            color: #1E40AF;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        .default-rest {
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+
+        .warmup-section {
+            background: #FEF3C7;
+            border-left: 4px solid #F59E0B;
+        }
+
+        .add-set-btn {
+            width: 100%;
+            padding: 8px;
+            background: #EFF6FF;
+            border: 2px dashed #3B82F6;
+            border-radius: 8px;
+            color: #3B82F6;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .backup-section {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .backup-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .export-btn {
+            background: #3B82F6;
+            color: white;
+        }
+
+        .import-btn {
+            background: #10B981;
+            color: white;
+        }
+
+        .clear-btn {
+            background: #EF4444;
+            color: white;
+        }
+
+        #importFile {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💪 Workout Tracker</h1>
+            <div class="session-nav">
+                <button class="session-btn session-1 active" onclick="switchSession(1)">Séance 1</button>
+                <button class="session-btn session-2" onclick="switchSession(2)">Séance 2</button>
+                <button class="session-btn session-3" onclick="switchSession(3)">Séance 3</button>
+                <button class="session-btn session-4" onclick="switchSession(4)">Séance 4</button>
+            </div>
+        </div>
+
+        <!-- Séance 1 -->
+        <div id="session-1" class="workout-content active">
+            <!-- Échauffement -->
+            <div class="muscle-group warmup-section">
+                <div class="muscle-group-header" style="border-color: #F59E0B; color: #92400E;">
+                    🔥 Échauffement
+                </div>
+                <div class="exercise-name">10 min de rameur</div>
+            </div>
+
+            <!-- Dos -->
+            <div class="muscle-group">
+                <div class="muscle-group-header" style="border-color: #10B981; color: #047857;">
+                    💪 Dos
+                </div>
+                
+                <div class="biset-indicator">
+                    ⚡ BISET : 2 exercices enchaînés → Repos 1min30-2min
+                    <div class="biset-type">[Exo 1 + Exo 2] puis repos × 4</div>
+                </div>
+
+                <div class="exercise" data-exercise="dos-tractions" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Tractions</div>
+                            <div class="exercise-info">4 séries • Max reps (échec)</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-dos-tractions"></div>
+                    <button class="add-set-btn" onclick="addSet('dos-tractions', 'standard')">+ Ajouter série 5</button>
+                </div>
+
+                <div class="exercise" data-exercise="dos-d5-traction" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">D5 Traction</div>
+                            <div class="exercise-info">4 séries • Max reps (échec)</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-dos-d5-traction"></div>
+                    <button class="add-set-btn" onclick="addSet('dos-d5-traction', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos après biset: 1min30 - 2min</div>
+                </div>
+
+                <div class="biset-indicator">
+                    ⚡ BISET : 2 exercices enchaînés sans repos
+                    <div class="biset-type">[Exo 1 + Exo 2 + Exo 1 + Exo 2...] × 4 chaque</div>
+                </div>
+
+                <div class="exercise" data-exercise="dos-rowing-halteres" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Rowing haltères (unilatéral)</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-dos-rowing-halteres"></div>
+                    <button class="add-set-btn" onclick="addSet('dos-rowing-halteres', 'standard')">+ Ajouter série 5</button>
+                </div>
+
+                <div class="exercise" data-exercise="dos-d3" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">D3 (unilatéral)</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-dos-d3"></div>
+                    <button class="add-set-btn" onclick="addSet('dos-d3', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time default-rest">⏱️ Repos: 2min (par défaut)</div>
+                </div>
+            </div>
+
+            <!-- Pecs -->
+            <div class="muscle-group">
+                <div class="muscle-group-header" style="border-color: #3B82F6; color: #1E40AF;">
+                    💪 Pecs
+                </div>
+
+                <div class="exercise" data-exercise="pecs-dev-incline" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Développé incliné haltères</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-pecs-dev-incline"></div>
+                    <button class="add-set-btn" onclick="addSet('pecs-dev-incline', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos: 1min</div>
+                </div>
+            </div>
+
+            <!-- Triceps -->
+            <div class="muscle-group">
+                <div class="muscle-group-header" style="border-color: #F59E0B; color: #C2410C;">
+                    💪 Triceps
+                </div>
+                
+                <div class="biset-indicator">
+                    ⚡ BISET : 2 exercices enchaînés → Repos 1min
+                    <div class="biset-type">[Exo 1 + Exo 2] puis repos × 4</div>
+                </div>
+
+                <div class="exercise" data-exercise="triceps-dips" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Dips D5</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-triceps-dips"></div>
+                    <button class="add-set-btn" onclick="addSet('triceps-dips', 'standard')">+ Ajouter série 5</button>
+                </div>
+
+                <div class="exercise" data-exercise="triceps-extensions" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Extensions dos à la poulie</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-triceps-extensions"></div>
+                    <button class="add-set-btn" onclick="addSet('triceps-extensions', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos après biset: 1min</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Séance 2 -->
+        <div id="session-2" class="workout-content">
+            <!-- Échauffement -->
+            <div class="muscle-group warmup-section">
+                <div class="muscle-group-header" style="border-color: #F59E0B; color: #92400E;">
+                    🔥 Échauffement
+                </div>
+                <div class="exercise-name">10 min de cross trainer</div>
+            </div>
+
+            <!-- Jambes -->
+            <div class="muscle-group">
+                <div class="muscle-group-header" style="border-color: #EF4444; color: #991B1B;">
+                    🦵 Jambes
+                </div>
+                
+                <div class="exercise" data-exercise="jambes-squats" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Squats</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-jambes-squats"></div>
+                    <button class="add-set-btn" onclick="addSet('jambes-squats', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos: 1min30</div>
+                </div>
+
+                <div class="biset-indicator">
+                    ⚡ BISET : 2 exercices enchaînés → Repos 1min
+                    <div class="biset-type">[Exo 1 + Exo 2] puis repos × 4</div>
+                </div>
+
+                <div class="exercise" data-exercise="jambes-fente-arriere" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Fente arrière alternées</div>
+                            <div class="exercise-info">4 séries • 8-10 reps par côté</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-jambes-fente-arriere"></div>
+                    <button class="add-set-btn" onclick="addSet('jambes-fente-arriere', 'standard')">+ Ajouter série 5</button>
+                </div>
+
+                <div class="exercise" data-exercise="jambes-c2" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">C2</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-jambes-c2"></div>
+                    <button class="add-set-btn" onclick="addSet('jambes-c2', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos après biset: 1min</div>
+                </div>
+
+                <div class="exercise" data-exercise="jambes-c1" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">C1</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-jambes-c1"></div>
+                    <button class="add-set-btn" onclick="addSet('jambes-c1', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos: 1min</div>
+                </div>
+            </div>
+
+            <!-- Épaules -->
+            <div class="muscle-group">
+                <div class="muscle-group-header" style="border-color: #F59E0B; color: #C2410C;">
+                    💪 Épaules
+                </div>
+                
+                <div class="exercise" data-exercise="epaules-e1" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">E1</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-epaules-e1"></div>
+                    <button class="add-set-btn" onclick="addSet('epaules-e1', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos: 1min</div>
+                </div>
+
+                <div class="exercise" data-exercise="epaules-elevation-lat" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Élévations latérales</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-epaules-elevation-lat"></div>
+                    <button class="add-set-btn" onclick="addSet('epaules-elevation-lat', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos: 1min</div>
+                </div>
+            </div>
+
+            <!-- Abdos -->
+            <div class="muscle-group">
+                <div class="muscle-group-header" style="border-color: #8B5CF6; color: #5B21B6;">
+                    💪 Abdos
+                </div>
+                
+                <div class="biset-indicator">
+                    ⚡ BISET : 2 exercices enchaînés → Repos 30sec
+                    <div class="biset-type">[Exo 1 + Exo 2] puis repos × 4</div>
+                </div>
+
+                <div class="exercise" data-exercise="abdos-crunch" data-input-type="time">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Crunch</div>
+                            <div class="exercise-info">4 séries • Max reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-abdos-crunch"></div>
+                    <button class="add-set-btn" onclick="addSet('abdos-crunch', 'time')">+ Ajouter série 5</button>
+                </div>
+
+                <div class="exercise" data-exercise="abdos-gainage" data-input-type="time">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Gainage</div>
+                            <div class="exercise-info">4 séries • Max temps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-abdos-gainage"></div>
+                    <button class="add-set-btn" onclick="addSet('abdos-gainage', 'time')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos après biset: 30sec</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Séance 3 -->
+        <div id="session-3" class="workout-content">
+            <!-- Échauffement -->
+            <div class="muscle-group warmup-section">
+                <div class="muscle-group-header" style="border-color: #F59E0B; color: #92400E;">
+                    🔥 Échauffement
+                </div>
+                <div class="exercise-name">10 min de rameur</div>
+            </div>
+
+            <!-- Pecs -->
+            <div class="muscle-group">
+                <div class="muscle-group-header" style="border-color: #3B82F6; color: #1E40AF;">
+                    💪 Pecs
+                </div>
+                
+                <div class="exercise" data-exercise="pecs-dev-couche" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Développé couché haltères</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-pecs-dev-couche"></div>
+                    <button class="add-set-btn" onclick="addSet('pecs-dev-couche', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos: 1min30</div>
+                </div>
+
+                <div class="biset-indicator">
+                    ⚡ BISET : 2 exercices enchaînés sans repos
+                    <div class="biset-type">[Exo 1 + Exo 2 + Exo 1 + Exo 2...] × 4 chaque</div>
+                </div>
+
+                <div class="exercise" data-exercise="pecs-ecarter-poulie" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Écartés poulie (unilatéral)</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-pecs-ecarter-poulie"></div>
+                    <button class="add-set-btn" onclick="addSet('pecs-ecarter-poulie', 'standard')">+ Ajouter série 5</button>
+                </div>
+
+                <div class="exercise" data-exercise="pecs-p2" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">P2 (unilatéral)</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-pecs-p2"></div>
+                    <button class="add-set-btn" onclick="addSet('pecs-p2', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time default-rest">⏱️ Repos: 2min (par défaut)</div>
+                </div>
+            </div>
+
+            <!-- Dos -->
+            <div class="muscle-group">
+                <div class="muscle-group-header" style="border-color: #10B981; color: #047857;">
+                    💪 Dos
+                </div>
+                
+                <div class="exercise" data-exercise="dos-tirage-poulie-basse" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Tirage poulie basse D6</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-dos-tirage-poulie-basse"></div>
+                    <button class="add-set-btn" onclick="addSet('dos-tirage-poulie-basse', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos: 1min</div>
+                </div>
+            </div>
+
+            <!-- Biceps -->
+            <div class="muscle-group">
+                <div class="muscle-group-header" style="border-color: #EC4899; color: #9F1239;">
+                    💪 Biceps
+                </div>
+                
+                <div class="biset-indicator">
+                    ⚡ BISET : 2 exercices enchaînés → Repos 1min
+                    <div class="biset-type">[Exo 1 + Exo 2] puis repos × 4</div>
+                </div>
+
+                <div class="exercise" data-exercise="biceps-curl-ez" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Curl barre EZ</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-biceps-curl-ez"></div>
+                    <button class="add-set-btn" onclick="addSet('biceps-curl-ez', 'standard')">+ Ajouter série 5</button>
+                </div>
+
+                <div class="exercise" data-exercise="biceps-curl-marteau" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Curl marteau</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-biceps-curl-marteau"></div>
+                    <button class="add-set-btn" onclick="addSet('biceps-curl-marteau', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos après biset: 1min</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Séance 4 -->
+        <div id="session-4" class="workout-content">
+            <!-- Échauffement -->
+            <div class="muscle-group warmup-section">
+                <div class="muscle-group-header" style="border-color: #F59E0B; color: #92400E;">
+                    🔥 Échauffement
+                </div>
+                <div class="exercise-name">10 min de cross trainer</div>
+            </div>
+
+            <!-- Jambes -->
+            <div class="muscle-group">
+                <div class="muscle-group-header" style="border-color: #EF4444; color: #991B1B;">
+                    🦵 Jambes
+                </div>
+                
+                <div class="exercise" data-exercise="jambes-presse-c3" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Presse C3</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-jambes-presse-c3"></div>
+                    <button class="add-set-btn" onclick="addSet('jambes-presse-c3', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos: 1min30</div>
+                </div>
+
+                <div class="biset-indicator">
+                    ⚡ BISET : 2 exercices enchaînés → Repos 1min30
+                    <div class="biset-type">[Exo 1 + Exo 2] puis repos × 4</div>
+                </div>
+
+                <div class="exercise" data-exercise="jambes-v-squat" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">V-squat</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-jambes-v-squat"></div>
+                    <button class="add-set-btn" onclick="addSet('jambes-v-squat', 'standard')">+ Ajouter série 5</button>
+                </div>
+
+                <div class="exercise" data-exercise="jambes-c5" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">C5</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-jambes-c5"></div>
+                    <button class="add-set-btn" onclick="addSet('jambes-c5', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos après biset: 1min30</div>
+                </div>
+            </div>
+
+            <!-- Épaules -->
+            <div class="muscle-group">
+                <div class="muscle-group-header" style="border-color: #F59E0B; color: #C2410C;">
+                    💪 Épaules
+                </div>
+                
+                <div class="exercise" data-exercise="epaules-dev-halteres" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Développé haltères</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-epaules-dev-halteres"></div>
+                    <button class="add-set-btn" onclick="addSet('epaules-dev-halteres', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos: 1min</div>
+                </div>
+
+                <div class="exercise" data-exercise="epaules-p3-inverse" data-input-type="standard">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">P3 inversé</div>
+                            <div class="exercise-info">4 séries • 8-10 reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-epaules-p3-inverse"></div>
+                    <button class="add-set-btn" onclick="addSet('epaules-p3-inverse', 'standard')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos: 1min</div>
+                </div>
+            </div>
+
+            <!-- Abdos -->
+            <div class="muscle-group">
+                <div class="muscle-group-header" style="border-color: #8B5CF6; color: #5B21B6;">
+                    💪 Abdos
+                </div>
+                
+                <div class="biset-indicator">
+                    ⚡ BISET : 2 exercices enchaînés → Repos 30sec
+                    <div class="biset-type">[Exo 1 + Exo 2] puis repos × 4</div>
+                </div>
+
+                <div class="exercise" data-exercise="abdos-crunch-s4" data-input-type="time">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Crunch</div>
+                            <div class="exercise-info">4 séries • Max reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-abdos-crunch-s4"></div>
+                    <button class="add-set-btn" onclick="addSet('abdos-crunch-s4', 'time')">+ Ajouter série 5</button>
+                </div>
+
+                <div class="exercise" data-exercise="abdos-crunch-oblique" data-input-type="time">
+                    <div class="exercise-header">
+                        <div>
+                            <div class="exercise-name">Crunch obliques</div>
+                            <div class="exercise-info">4 séries • Max reps</div>
+                        </div>
+                        <button class="complete-btn" onclick="toggleComplete(this)">✓</button>
+                    </div>
+                    <div class="sets-container" id="sets-abdos-crunch-oblique"></div>
+                    <button class="add-set-btn" onclick="addSet('abdos-crunch-oblique', 'time')">+ Ajouter série 5</button>
+                    <div class="rest-time">⏱️ Repos après biset: 30sec</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backup Section -->
+        <div class="backup-section">
+            <h3 style="margin-bottom: 15px; color: #333;">💾 Sauvegarde</h3>
+            <button class="backup-btn export-btn" onclick="exportData()">📥 Exporter mes données</button>
+            <button class="backup-btn import-btn" onclick="document.getElementById('importFile').click()">📤 Importer des données</button>
+            <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+            <button class="backup-btn clear-btn" onclick="clearAllData()">🗑️ Réinitialiser tout</button>
+        </div>
+    </div>
+
+    <script>
+        // Track number of sets per exercise
+        const setCount = {};
+
+        // Initialize sets for all exercises
+        function initializeSets() {
+            const exercises = document.querySelectorAll('.exercise');
+            exercises.forEach(exercise => {
+                const exerciseId = exercise.dataset.exercise;
+                const inputType = exercise.dataset.inputType;
+                setCount[exerciseId] = 4; // Start with 4 sets
+                renderSets(exerciseId, inputType);
+            });
+            
+            loadAllData();
+        }
+
+        // Render sets for an exercise
+        function renderSets(exerciseId, inputType) {
+            const setsContainer = document.getElementById(`sets-${exerciseId}`);
+            if (!setsContainer) return;
+            
+            const numSets = setCount[exerciseId] || 4;
+            let html = '';
+            
+            for (let i = 1; i <= numSets; i++) {
+                if (inputType === 'time') {
+                    // For abdos: time input instead of weight
+                    html += `
+                        <div class="set-row">
+                            <div class="set-label">S${i}</div>
+                            <input type="number" class="set-input" placeholder="sec" 
+                                   data-exercise="${exerciseId}" data-set="${i}" data-type="time"
+                                   oninput="saveSetData(this)" step="1" min="0">
+                            <input type="number" class="set-input" placeholder="reps" 
+                                   data-exercise="${exerciseId}" data-set="${i}" data-type="reps"
+                                   oninput="saveSetData(this)" min="1" max="100">
+                            <input type="checkbox" class="set-check" 
+                                   data-exercise="${exerciseId}" data-set="${i}"
+                                   onchange="saveSetCheck(this)">
+                        </div>
+                    `;
+                } else {
+                    // Standard: weight + reps
+                    html += `
+                        <div class="set-row">
+                            <div class="set-label">S${i}</div>
+                            <input type="number" class="set-input" placeholder="kg" 
+                                   data-exercise="${exerciseId}" data-set="${i}" data-type="weight"
+                                   oninput="saveSetData(this)" step="0.5">
+                            <input type="number" class="set-input" placeholder="reps" 
+                                   data-exercise="${exerciseId}" data-set="${i}" data-type="reps"
+                                   oninput="saveSetData(this)" min="1" max="50">
+                            <input type="checkbox" class="set-check" 
+                                   data-exercise="${exerciseId}" data-set="${i}"
+                                   onchange="saveSetCheck(this)">
+                        </div>
+                    `;
+                }
+            }
+            
+            setsContainer.innerHTML = html;
+            
+            // Update button text
+            const exercise = document.querySelector(`[data-exercise="${exerciseId}"]`);
+            const btn = exercise.querySelector('.add-set-btn');
+            if (numSets >= 5) {
+                btn.style.display = 'none';
+            } else {
+                btn.style.display = 'block';
+                btn.textContent = `+ Ajouter série ${numSets + 1}`;
+            }
+        }
+
+        // Add a new set to an exercise
+        function addSet(exerciseId, inputType) {
+            if (setCount[exerciseId] >= 5) return; // Max 5 sets
+            
+            setCount[exerciseId]++;
+            localStorage.setItem(`setcount_${exerciseId}`, setCount[exerciseId].toString());
+            renderSets(exerciseId, inputType);
+            loadAllData(); // Reload saved data for new inputs
+        }
+
+        // Save set data to localStorage
+        function saveSetData(input) {
+            const exercise = input.dataset.exercise;
+            const set = input.dataset.set;
+            const type = input.dataset.type;
+            const value = input.value;
+            
+            const key = `workout_${exercise}_set${set}_${type}`;
+            localStorage.setItem(key, value);
+        }
+
+        // Save set checkbox state
+        function saveSetCheck(checkbox) {
+            const exercise = checkbox.dataset.exercise;
+            const set = checkbox.dataset.set;
+            const checked = checkbox.checked;
+            
+            const key = `workout_${exercise}_set${set}_checked`;
+            localStorage.setItem(key, checked.toString());
+        }
+
+        // Toggle exercise completion
+        function toggleComplete(button) {
+            const exercise = button.closest('.exercise');
+            const exerciseId = exercise.dataset.exercise;
+            const isCompleted = exercise.classList.contains('completed');
+            
+            exercise.classList.toggle('completed');
+            button.classList.toggle('completed');
+            
+            localStorage.setItem(`workout_${exerciseId}_completed`, (!isCompleted).toString());
+        }
+
+        // Load all saved data
+        function loadAllData() {
+            try {
+                // Load set counts first
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('setcount_')) {
+                        const exerciseId = key.replace('setcount_', '');
+                        const count = parseInt(localStorage.getItem(key));
+                        if (count > 4) {
+                            setCount[exerciseId] = count;
+                            const exercise = document.querySelector(`[data-exercise="${exerciseId}"]`);
+                            if (exercise) {
+                                const inputType = exercise.dataset.inputType;
+                                renderSets(exerciseId, inputType);
+                            }
+                        }
+                    }
+                }
+                
+                // Load workout data
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (!key || !key.startsWith('workout_')) continue;
+                    
+                    const value = localStorage.getItem(key);
+                    
+                    if (key.includes('_completed')) {
+                        const exerciseId = key.replace('workout_', '').replace('_completed', '');
+                        const exercise = document.querySelector(`[data-exercise="${exerciseId}"]`);
+                        if (exercise && value === 'true') {
+                            exercise.classList.add('completed');
+                            const button = exercise.querySelector('.complete-btn');
+                            if (button) button.classList.add('completed');
+                        }
+                    } else if (key.includes('_checked')) {
+                        const parts = key.match(/workout_(.+)_set(\d+)_checked/);
+                        if (parts) {
+                            const exerciseId = parts[1];
+                            const setNum = parts[2];
+                            const checkbox = document.querySelector(
+                                `input[type="checkbox"][data-exercise="${exerciseId}"][data-set="${setNum}"]`
+                            );
+                            if (checkbox) checkbox.checked = value === 'true';
+                        }
+                    } else {
+                        const parts = key.match(/workout_(.+)_set(\d+)_(weight|reps|time)/);
+                        if (parts) {
+                            const exerciseId = parts[1];
+                            const setNum = parts[2];
+                            const type = parts[3];
+                            const input = document.querySelector(
+                                `input[data-exercise="${exerciseId}"][data-set="${setNum}"][data-type="${type}"]`
+                            );
+                            if (input) input.value = value;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Switch between sessions
+        function switchSession(sessionNum) {
+            document.querySelectorAll('.session-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.session-${sessionNum}`).classList.add('active');
+            
+            document.querySelectorAll('.workout-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`session-${sessionNum}`).classList.add('active');
+        }
+
+        // Export data
+        function exportData() {
+            try {
+                const data = {};
+                
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && (key.startsWith('workout_') || key.startsWith('setcount_'))) {
+                        data[key] = localStorage.getItem(key);
+                    }
+                }
+                
+                const dataStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `workout-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                alert('✅ Données exportées avec succès!');
+            } catch (error) {
+                alert('❌ Erreur lors de l\'export: ' + error.message);
+            }
+        }
+
+        // Import data
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    for (const [key, value] of Object.entries(data)) {
+                        localStorage.setItem(key, value);
+                    }
+                    
+                    location.reload();
+                } catch (error) {
+                    alert('❌ Erreur lors de l\'import: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Clear all data
+        function clearAllData() {
+            if (!confirm('⚠️ Êtes-vous sûr de vouloir supprimer toutes vos données? Cette action est irréversible!')) {
+                return;
+            }
+            
+            try {
+                const keysToDelete = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && (key.startsWith('workout_') || key.startsWith('setcount_'))) {
+                        keysToDelete.push(key);
+                    }
+                }
+                
+                keysToDelete.forEach(key => localStorage.removeItem(key));
+                
+                location.reload();
+            } catch (error) {
+                alert('❌ Erreur lors de la suppression: ' + error.message);
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeSets();
+        });
+    </script>
+</body>
+</html>
